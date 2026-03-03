@@ -1,3 +1,5 @@
+(function () {
+
 if (document.getElementById("autoMenu")) {
     return;
 }
@@ -143,4 +145,6 @@ if (document.getElementById("autoMenu")) {
             running = false;
         }
     };
+})();
+
 })();
