@@ -1,10 +1,9 @@
 (function () {
 
-if (document.getElementById("autoMenu")) {
-    return;
-}
+    if (document.getElementById("autoMenu")) {
+        return;
+    }
 
-(function () {
     // ======= ESTILO DO MENU =======
     const style = document.createElement("style");
     style.textContent = `
@@ -72,10 +71,8 @@ if (document.getElementById("autoMenu")) {
         <div style="text-align:center; margin-bottom:6px;">Auto Avançar</div>
         <div class="label">Intervalo (min.seg)</div>
         <input id="delayInput" type="text" value="1">
-
         <div id="countdown">00:00</div>
         <div class="label">Próximo clique</div>
-
         <button id="toggleBtn">Iniciar</button>
     `;
     document.body.appendChild(menu);
@@ -103,7 +100,6 @@ if (document.getElementById("autoMenu")) {
         const parts = value.split(".");
         const minutes = parseInt(parts[0]) || 0;
         const seconds = parts[1] ? parseInt(parts[1].padEnd(2, "0")) : 0;
-
         return (minutes * 60) + seconds;
     }
 
@@ -145,6 +141,5 @@ if (document.getElementById("autoMenu")) {
             running = false;
         }
     };
-})();
 
 })();
