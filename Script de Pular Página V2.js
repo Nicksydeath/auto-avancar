@@ -1,3 +1,7 @@
+if (document.getElementById("autoMenu")) {
+    return;
+}
+
 (function () {
     // ======= ESTILO DO MENU =======
     const style = document.createElement("style");
