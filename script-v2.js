@@ -1,5 +1,4 @@
 (function () {
-
     if (document.getElementById("autoMenu")) {
         return;
     }
@@ -103,37 +102,78 @@
         return (minutes * 60) + seconds;
     }
 
+    // ======= CICLO COM JITTER =======
     function startCycle() {
-        remainingSeconds = totalSeconds;
+        const jitter = Math.floor(Math.random() * 21) - 10;
+        remainingSeconds = Math.max(5, totalSeconds + jitter);
+        console.debug('%c[AA] ⏱ próximo clique em ' + remainingSeconds + 's (jitter: ' + (jitter >= 0 ? '+' : '') + jitter + 's)', 'color:#00ff88;font-family:monospace');
         document.getElementById("countdown").textContent = formatTime(remainingSeconds);
 
         countdownInterval = setInterval(() => {
             remainingSeconds--;
-
             if (remainingSeconds <= 0) {
                 clickNextButton();
-                remainingSeconds = totalSeconds;
+                const nextJitter = Math.floor(Math.random() * 21) - 10;
+                remainingSeconds = Math.max(5, totalSeconds + nextJitter);
+                console.debug('%c[AA] ⏱ próximo clique em ' + remainingSeconds + 's (jitter: ' + (nextJitter >= 0 ? '+' : '') + nextJitter + 's)', 'color:#00ff88;font-family:monospace');
             }
-
-            document.getElementById("countdown").textContent =
-                formatTime(remainingSeconds);
+            document.getElementById("countdown").textContent = formatTime(remainingSeconds);
         }, 1000);
     }
 
+    // ======= MOVIMENTO FALSO DE MOUSE =======
+    let mouseX = Math.floor(Math.random() * window.innerWidth);
+    let mouseY = Math.floor(Math.random() * window.innerHeight);
+    let mouseTarget = { x: mouseX, y: mouseY };
+    let mouseMoveTimeout = null;
+
+    function easeToTarget() {
+        mouseX += (mouseTarget.x - mouseX) * (0.04 + Math.random() * 0.06);
+        mouseY += (mouseTarget.y - mouseY) * (0.04 + Math.random() * 0.06);
+
+        document.dispatchEvent(new MouseEvent("mousemove", {
+            bubbles: true,
+            cancelable: true,
+            clientX: Math.round(mouseX),
+            clientY: Math.round(mouseY),
+            movementX: Math.round(mouseTarget.x - mouseX),
+            movementY: Math.round(mouseTarget.y - mouseY)
+        }));
+
+        const distX = Math.abs(mouseTarget.x - mouseX);
+        const distY = Math.abs(mouseTarget.y - mouseY);
+
+        if (distX > 2 || distY > 2) {
+            const moveDelay = 12 + Math.random() * 33;
+            mouseMoveTimeout = setTimeout(easeToTarget, moveDelay);
+        } else {
+            const pause = 2000 + Math.random() * 7000;
+            mouseMoveTimeout = setTimeout(pickNewTarget, pause);
+        }
+    }
+
+    function pickNewTarget() {
+        const maxStep = 80 + Math.floor(Math.random() * 420);
+        const angleJitter = Math.random() * Math.PI * 2;
+        const dist = maxStep * (0.4 + Math.random() * 0.6);
+        mouseTarget.x = Math.max(0, Math.min(window.innerWidth,
+            mouseX + Math.cos(angleJitter) * dist));
+        mouseTarget.y = Math.max(0, Math.min(window.innerHeight,
+            mouseY + Math.sin(angleJitter) * dist));
+        console.debug('%c[AA] 🖱 mouse → (' + Math.round(mouseTarget.x) + ', ' + Math.round(mouseTarget.y) + ')', 'color:#00ff88;font-family:monospace');
+        easeToTarget();
+    }
+
+    // Inicia o movimento falso
+    pickNewTarget();
+
     document.getElementById("toggleBtn").onclick = function () {
         if (!running) {
-
-            totalSeconds = convertInputToSeconds(
-                document.getElementById("delayInput").value
-            );
-
+            totalSeconds = convertInputToSeconds(document.getElementById("delayInput").value);
             if (!totalSeconds || totalSeconds <= 0) return;
-
             this.textContent = "Parar";
             running = true;
-
             startCycle();
-
         } else {
             this.textContent = "Iniciar";
             clearInterval(countdownInterval);
